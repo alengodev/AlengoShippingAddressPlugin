@@ -1,0 +1,77 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-address.html.twig' %}
+
+{% block page_checkout_confirm_address %}
+    {{ parent() }}
+
+    {% block alternativeShippingAddress %}
+        {% if config('AlengoShippingAddress.config.altShippingAddressActive')|default(false) %}
+            <form action="{{ path('frontend.alengo.save_shipping_address') }}"
+                  data-action="{{ path('frontend.alengo.save_shipping_address') }}"
+                  method="post" class="alengo-shipping-address-form mb-5"
+                  id="shippingAddressForm">
+
+                {% set checked = '' %}
+                {% set collapsed = 'collapse' %}
+
+                {% if app.session.get('altShippingAddress').altShippingAddress.active|default(false) %}
+                    {% set checked = 'checked="checked"' %}
+                    {% set collapsed = '' %}
+                {% endif %}
+
+                <div class="card-title mt-4 mb-2 form-check">
+                    <input type="checkbox"
+                           value="1" class="form-check-input" id="altShippingAddressCheckbox"
+                               name="altShippingAddress[active]" data-save-alt-shipping-address="true"
+                           {{ checked }}
+                           onchange="toggleAltShippingAddress()">
+                    <label for="altShippingAddressCheckbox">{{ "alengo.alternativeShippingAddress"|trans|sw_sanitize }}</label>
+                </div>
+
+                <div id="altShippingAddressContainer" class="{{ collapsed }} alt-shipping-address-container">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="form-label"
+                                   for="altShippingAddressAddressStreet">{{ "address.streetLabel"|trans|sw_sanitize }}</label>
+                            <input type="text" class="form-control" id="altShippingAddressAddressStreet"
+                                   placeholder="{{ "address.streetPlaceholder"|trans|striptags }}"
+                                   name="altShippingAddress[street]" value="{{ app.session.get('altShippingAddress').altShippingAddress.street|default('') }}"
+                                   data-save-alt-shipping-address="true"
+                                   data-action="{{ path('frontend.alengo.save_shipping_address') }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label class="form-label"
+                                   for="altShippingAddressAddressZipcode">{{ "address.zipcodeLabel"|trans|sw_sanitize }}</label>
+                            <input type="text" class="form-control" id="altShippingAddressAddressZipcode"
+                                   placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
+                                   name="altShippingAddress[zipcode]" value="{{ app.session.get('altShippingAddress').altShippingAddress.zipcode|default('') }}"
+                                   data-save-alt-shipping-address="true"
+                                   data-action="{{ path('frontend.alengo.save_shipping_address') }}">
+                        </div>
+
+                        <div class="form-group col-md-8">
+                            <label class="form-label"
+                                   for="altShippingAddressAddressCity">{{ "address.cityLabel"|trans|sw_sanitize }}</label>
+                            <input type="text" class="form-control" id="altShippingAddressAddressCity"
+                                   placeholder="{{ "address.cityPlaceholder"|trans|striptags }}" name="altShippingAddress[city]"
+                                   value="{{ app.session.get('altShippingAddress').altShippingAddress.city|default('') }}"
+                                   data-save-alt-shipping-address="true"
+                                   data-action="{{ path('frontend.alengo.save_shipping_address') }}">
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <script>
+                function toggleAltShippingAddress() {
+                    const checkbox = document.getElementById('altShippingAddressCheckbox');
+                    const container = document.querySelector('.alt-shipping-address-container');
+                    container.style.display = checkbox.checked ? 'block' : 'none';
+                }
+            </script>
+        {% endif %}
+    {% endblock %}
+
+{% endblock %}

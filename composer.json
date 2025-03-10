@@ -1,0 +1,36 @@
+{
+    "name": "alengo-shipping-address/alengo-shipping-address",
+    "description": "Change address in checkout",
+    "type": "shopware-platform-plugin",
+    "version": "0.1.2",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "alengo OG",
+            "homepage": "https://www.alengo.at",
+            "role": "Manufacturer"
+        }
+    ],
+    "require": {
+        "shopware/core": "^6.5.0"
+    },
+    "extra": {
+        "shopware-plugin-class": "AlengoShippingAddress\\AlengoShippingAddress",
+        "plugin-icon": "src/Resources/config/plugin.png",
+        "copyright": "(c) by alengo OG",
+        "label": {
+            "de-DE": "Adresse in Checkout ändern",
+            "en-GB": "Change address in checkout"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "AlengoShippingAddress\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AlengoShippingAddress\\Tests\\": "tests/"
+        }
+    }
+}
