@@ -8,8 +8,14 @@
 
         <input-field type="bool">
             <name>altShippingAddressActive</name>
-            <label lang="en-GB">Adds a form in the checkout for an alternative shipping address.</label>
-            <label lang="de-DE">Fügt ein Formular im Checkout für eine alternative Lieferadresse hinzu.</label>
+            <label lang="en-GB">Enable change of delivery address via an additional form.</label>
+            <label lang="de-DE">Änderung der Lieferadresse über ein zusätzliches Formular ermöglichen.</label>
+        </input-field>
+
+        <input-field type="bool">
+            <name>altShippingAddressChangeName</name>
+            <label lang="en-GB">Enable change of recipient name as well.</label>
+            <label lang="de-DE">Änderung des Empfänger-Namen ebenfalls ermöglichen.</label>
         </input-field>
     </card>
 

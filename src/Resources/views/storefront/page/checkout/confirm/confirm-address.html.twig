@@ -28,6 +28,31 @@
                 </div>
 
                 <div id="altShippingAddressContainer" class="{{ collapsed }} alt-shipping-address-container">
+
+                    {% if config('AlengoShippingAddress.config.altShippingAddressChangeName')|default(false) %}
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label class="form-label"
+                                       for="altShippingAddressAddressFirstName">{{ "account.personalFirstNameLabel"|trans|sw_sanitize }}</label>
+                                <input type="text" class="form-control" id="altShippingAddressAddressFirstName"
+                                       placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}"
+                                       name="altShippingAddress[firstName]" value="{{ app.session.get('altShippingAddress').altShippingAddress.firstName|default('') }}"
+                                       data-save-alt-shipping-address="true"
+                                       data-action="{{ path('frontend.alengo.save_shipping_address') }}">
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="form-label"
+                                       for="altShippingAddressLastname">{{ "account.personalLastNameLabel"|trans|sw_sanitize }}</label>
+                                <input type="text" class="form-control" id="altShippingAddressLastname"
+                                       placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}"
+                                       name="altShippingAddress[lastName]" value="{{ app.session.get('altShippingAddress').altShippingAddress.lastName|default('') }}"
+                                       data-save-alt-shipping-address="true"
+                                       data-action="{{ path('frontend.alengo.save_shipping_address') }}">
+                            </div>
+                        </div>
+                    {% endif %}
+
                     <div class="row">
                         <div class="form-group">
                             <label class="form-label"

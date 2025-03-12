@@ -1,8 +1,8 @@
-# AlengoShippingAddress Plugin
+# AlengoShippingAddress Plugin for Shopware 6
 
 ## Description
 
-The `AlengoShippingAddress` plugin for Shopware allows you to override the shipping address during the checkout process. Due to the calculation of shipping costs or other applicable rules, the country cannot be changed. However, the street, postal code, and city can be overridden.
+The `AlengoShippingAddress` plugin for Shopware 6 allows you to override the shipping address during the checkout process. Due to the calculation of shipping costs or other applicable rules, the country cannot be changed. However, the street, postal code, and city can be overridden.
 
 ## Installation
 
@@ -14,7 +14,10 @@ The `AlengoShippingAddress` plugin for Shopware allows you to override the shipp
 ## Configuration
 
 After installing and activating the plugin, you can configure it in the Shopware backend under `Settings > System > Plugins > AlengoShippingAddress`.
-Here you can activate or deactivate the plugin for individual sales channels.
+The settings can be made per sales channel.
+
+* **Enable change of delivery address via an additional form**: Allows the user to change the delivery address during checkout.
+* **Enable change of recipient name as well**: Allows the user to change the recipient's name during checkout.
 
 ## Requirements
 
