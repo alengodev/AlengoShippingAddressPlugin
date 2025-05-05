@@ -21,8 +21,8 @@
                 <div class="card-title mt-4 mb-2 form-check">
                     <input type="checkbox"
                            value="1" class="form-check-input" id="altShippingAddressCheckbox"
-                               name="altShippingAddress[active]" data-save-alt-shipping-address="true"
-                           {{ checked }}
+                           name="altShippingAddress[active]" data-save-alt-shipping-address="true"
+                            {{ checked }}
                            onchange="toggleAltShippingAddress()">
                     <label for="altShippingAddressCheckbox">{{ "alengo.alternativeShippingAddress"|trans|sw_sanitize }}</label>
                 </div>
@@ -36,7 +36,7 @@
                                        for="altShippingAddressAddressFirstName">{{ "account.personalFirstNameLabel"|trans|sw_sanitize }}</label>
                                 <input type="text" class="form-control" id="altShippingAddressAddressFirstName"
                                        placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}"
-                                       name="altShippingAddress[firstName]" value="{{ app.session.get('altShippingAddress').altShippingAddress.firstName|default('') }}"
+                                       name="altShippingAddress[firstName]" value="{{ app.session.get('altShippingAddress').altShippingAddress.firstName|default(context.extensions.employee.firstName|default('')) }}"
                                        data-save-alt-shipping-address="true"
                                        data-action="{{ path('frontend.alengo.save_shipping_address') }}">
                             </div>
@@ -46,7 +46,7 @@
                                        for="altShippingAddressLastname">{{ "account.personalLastNameLabel"|trans|sw_sanitize }}</label>
                                 <input type="text" class="form-control" id="altShippingAddressLastname"
                                        placeholder="{{ "account.personalLastNamePlaceholder"|trans|striptags }}"
-                                       name="altShippingAddress[lastName]" value="{{ app.session.get('altShippingAddress').altShippingAddress.lastName|default('') }}"
+                                       name="altShippingAddress[lastName]" value="{{ app.session.get('altShippingAddress').altShippingAddress.lastName|default(context.extensions.employee.lastName|default('')) }}"
                                        data-save-alt-shipping-address="true"
                                        data-action="{{ path('frontend.alengo.save_shipping_address') }}">
                             </div>
