@@ -66,11 +66,11 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $newShippingAddress = [
                 'id' => Uuid::randomHex(),
                 'orderId' => $order->getId(),
-                'firstName' => $altShippingAddress['altShippingAddress']['firstName'] ?? $shippingAddress->getFirstName(),
-                'lastName' => $altShippingAddress['altShippingAddress']['lastName'] ?? $shippingAddress->getLastName(),
-                'street' => $altShippingAddress['altShippingAddress']['street'] ?? $shippingAddress->getStreet(),
-                'zipcode' => $altShippingAddress['altShippingAddress']['zipcode'] ?? $altShippingAddress->getZipcode(),
-                'city' => $altShippingAddress['altShippingAddress']['city'] ?? $shippingAddress->getCity(),
+                'firstName' => $altShippingAddress['altShippingAddress']['firstName'] != '' ? $altShippingAddress['altShippingAddress']['firstName'] : $shippingAddress->getFirstName(),
+                'lastName' => $altShippingAddress['altShippingAddress']['lastName'] != '' ? $altShippingAddress['altShippingAddress']['lastName'] : $shippingAddress->getLastName(),
+                'street' => $altShippingAddress['altShippingAddress']['street'] != '' ? $altShippingAddress['altShippingAddress']['street'] : $shippingAddress->getStreet(),
+                'zipcode' => $altShippingAddress['altShippingAddress']['zipcode'] != '' ? $altShippingAddress['altShippingAddress']['zipcode'] : $shippingAddress->getZipcode(),
+                'city' => $altShippingAddress['altShippingAddress']['city'] != '' ? $altShippingAddress['altShippingAddress']['city'] : $shippingAddress->getCity(),
                 'countryId' => $order->getAddresses()->first()->getCountryId(),
             ];
             // Add the new shipping address to the order
