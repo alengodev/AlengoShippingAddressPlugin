@@ -55,6 +55,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         // get order, order address and country id
         $order = $event->getOrder();
+        $orderCustomerEmail = $order->getOrderCustomer()->getEmail();
+        $orderCustomerFirstName = $order->getOrderCustomer()->getFirstName();
+        $orderCustomerLastName = $order->getOrderCustomer()->getLastName();
 
         // if checkbox is checked override shipping address or if b2b plugin is active
         if ($altShippingAddress['altShippingAddress']['active'] ?? false || $order->getCustomFields()['vio_b2b_employee_id'] ?? false) {
@@ -62,6 +65,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
             $shippingAddressId = $order->getDeliveries()->first()->getShippingOrderAddressId();
             $shippingAddress = $order->getAddresses()->get($shippingAddressId);
+            $newShippingAddress = [];
 
             if ($order->getCustomFields()['vio_b2b_employee_id'] ?? false) {
                 // Create a new shipping address
@@ -76,6 +80,11 @@ class StorefrontSubscriber implements EventSubscriberInterface
                     'city' => $shippingAddress->getCity(),
                     'countryId' => $order->getAddresses()->first()->getCountryId(),
                 ];
+
+                // change order email and name to employee email and name
+                $orderCustomerEmail = $order->getCustomFields()['vio_b2b_employee_email'] ?? $order->getOrderCustomer()->getEmail();
+                $orderCustomerFirstName = $order->getCustomFields()['vio_b2b_employee_firstName'] ?? $order->getOrderCustomer()->getFirstName();
+                $orderCustomerLastName = $order->getCustomFields()['vio_b2b_employee_lastName'] ?? $order->getOrderCustomer()->getLastName();
             }
 
             if ($altShippingAddress['altShippingAddress']['active'] ?? false) {
@@ -100,6 +109,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $this->orderRepository->update([
                 [
                     'id' => $order->getId(),
+                    'orderCustomer' => [
+                        'id' => $order->getOrderCustomer()->getId(),
+                        'email' => $orderCustomerEmail,
+                        'firstName' => $orderCustomerFirstName,
+                        'lastName' => $orderCustomerLastName,
+                    ],
                     'deliveries' => [
                         [
                             'id' => $order->getDeliveries()->first()->getId(),
