@@ -60,8 +60,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $orderCustomerLastName = $order->getOrderCustomer()->getLastName();
 
         // if checkbox is checked override shipping address or if b2b plugin is active
-        if ($altShippingAddress['altShippingAddress']['active'] ?? false || $order->getCustomFields()['vio_b2b_employee_id'] ?? false) {
-            //$orderAddress = $order->getAddresses()->first();
+        //if ($altShippingAddress['altShippingAddress']['active'] ?? false || $order->getCustomFields()['vio_b2b_employee_id'] ?? false) {
+        if ((isset($altShippingAddress['altShippingAddress']) && ($altShippingAddress['altShippingAddress']['active'] ?? false)) || ($order->getCustomFields()['vio_b2b_employee_id'] ?? false)) {
 
             $shippingAddressId = $order->getDeliveries()->first()->getShippingOrderAddressId();
             $shippingAddress = $order->getAddresses()->get($shippingAddressId);
