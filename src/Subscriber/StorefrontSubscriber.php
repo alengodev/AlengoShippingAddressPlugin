@@ -53,26 +53,45 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $altShippingAddress = $session->get('altShippingAddress', []);
         }
 
-        // if checkbox is checked override shipping address
-        if ($altShippingAddress['altShippingAddress']['active'] ?? false) {
-            // get order, order address and country id
-            $order = $event->getOrder();
+        // get order, order address and country id
+        $order = $event->getOrder();
+
+        // if checkbox is checked override shipping address or if b2b plugin is active
+        if ($altShippingAddress['altShippingAddress']['active'] ?? false || $order->getCustomFields()['vio_b2b_employee_id'] ?? false) {
             //$orderAddress = $order->getAddresses()->first();
 
             $shippingAddressId = $order->getDeliveries()->first()->getShippingOrderAddressId();
             $shippingAddress = $order->getAddresses()->get($shippingAddressId);
 
-            // Create a new shipping address
-            $newShippingAddress = [
-                'id' => Uuid::randomHex(),
-                'orderId' => $order->getId(),
-                'firstName' => $altShippingAddress['altShippingAddress']['firstName'] != '' ? $altShippingAddress['altShippingAddress']['firstName'] : $shippingAddress->getFirstName(),
-                'lastName' => $altShippingAddress['altShippingAddress']['lastName'] != '' ? $altShippingAddress['altShippingAddress']['lastName'] : $shippingAddress->getLastName(),
-                'street' => $altShippingAddress['altShippingAddress']['street'] != '' ? $altShippingAddress['altShippingAddress']['street'] : $shippingAddress->getStreet(),
-                'zipcode' => $altShippingAddress['altShippingAddress']['zipcode'] != '' ? $altShippingAddress['altShippingAddress']['zipcode'] : $shippingAddress->getZipcode(),
-                'city' => $altShippingAddress['altShippingAddress']['city'] != '' ? $altShippingAddress['altShippingAddress']['city'] : $shippingAddress->getCity(),
-                'countryId' => $order->getAddresses()->first()->getCountryId(),
-            ];
+            if ($order->getCustomFields()['vio_b2b_employee_id'] ?? false) {
+                // Create a new shipping address
+                $newShippingAddress = [
+                    'id' => Uuid::randomHex(),
+                    'orderId' => $order->getId(),
+                    'company' => $shippingAddress->getCompany(),
+                    'firstName' => $order->getCustomFields()['vio_b2b_employee_firstName'] != '' ? $order->getCustomFields()['vio_b2b_employee_firstName'] : $shippingAddress->getFirstName(),
+                    'lastName' => $order->getCustomFields()['vio_b2b_employee_lastName'] != '' ? $order->getCustomFields()['vio_b2b_employee_lastName'] : $shippingAddress->getLastName(),
+                    'street' => $shippingAddress->getStreet(),
+                    'zipcode' => $shippingAddress->getZipcode(),
+                    'city' => $shippingAddress->getCity(),
+                    'countryId' => $order->getAddresses()->first()->getCountryId(),
+                ];
+            }
+
+            if ($altShippingAddress['altShippingAddress']['active'] ?? false) {
+                // Create a new shipping address
+                $newShippingAddress = [
+                    'id' => Uuid::randomHex(),
+                    'orderId' => $order->getId(),
+                    'firstName' => $altShippingAddress['altShippingAddress']['firstName'] != '' ? $altShippingAddress['altShippingAddress']['firstName'] : $shippingAddress->getFirstName(),
+                    'lastName' => $altShippingAddress['altShippingAddress']['lastName'] != '' ? $altShippingAddress['altShippingAddress']['lastName'] : $shippingAddress->getLastName(),
+                    'street' => $altShippingAddress['altShippingAddress']['street'] != '' ? $altShippingAddress['altShippingAddress']['street'] : $shippingAddress->getStreet(),
+                    'zipcode' => $altShippingAddress['altShippingAddress']['zipcode'] != '' ? $altShippingAddress['altShippingAddress']['zipcode'] : $shippingAddress->getZipcode(),
+                    'city' => $altShippingAddress['altShippingAddress']['city'] != '' ? $altShippingAddress['altShippingAddress']['city'] : $shippingAddress->getCity(),
+                    'countryId' => $order->getAddresses()->first()->getCountryId(),
+                ];
+            }
+
             // Add the new shipping address to the order
             $this->orderAddressRepository->create([$newShippingAddress], $event->getContext());
 
