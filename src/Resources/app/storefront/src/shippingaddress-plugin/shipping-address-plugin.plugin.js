@@ -21,6 +21,17 @@ function processShippingAddressForm() {
 
     this.client.post(requestUrl, formData, callback => {
         this.$emitter.publish('afterSaveShippingAddressSendPostRequest');
+
+        // Setze alle .address-checkmark-Elemente auf display: none
+        document.querySelectorAll('.address-checkmark').forEach(checkmark => {
+            checkmark.style.display = 'none';
+        });
+
+        // Zeige das Häkchen für den aktuellen Button
+        const checkmark = this.nextElementSibling;
+        if (checkmark) {
+            checkmark.style.display = 'inline-block';
+        }
     }, error => {
         this.$emitter.publish('afterSaveShippingAddressSendPostRequest');
     });
