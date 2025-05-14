@@ -17,6 +17,18 @@
             <label lang="en-GB">Enable change of recipient name as well.</label>
             <label lang="de-DE">Änderung des Empfänger-Namen ebenfalls ermöglichen.</label>
         </input-field>
+
+        <input-field type="bool">
+            <name>altShippingAddressDisableAddressChangeButtons</name>
+            <label lang="en-GB">Disable buttons in checkout to change addresses.</label>
+            <label lang="de-DE">Buttons zum Ändern der Adressen im Checkout deaktivieren.</label>
+        </input-field>
+
+        <input-field type="textarea">
+            <name>altShippingAddressCsvAddresses</name>
+            <label>Addresses as CSV</label>
+            <helpText>Add addresses as CSV to be used as presets. Order of columns: company;street;zip;city</helpText>
+        </input-field>
     </card>
 
 </config>

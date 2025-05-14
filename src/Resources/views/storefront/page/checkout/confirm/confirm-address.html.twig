@@ -5,6 +5,7 @@
 
     {% block alternativeShippingAddress %}
         {% if config('AlengoShippingAddress.config.altShippingAddressActive')|default(false) %}
+
             <form action="{{ path('frontend.alengo.save_shipping_address') }}"
                   data-action="{{ path('frontend.alengo.save_shipping_address') }}"
                   method="post" class="alengo-shipping-address-form mb-5"
@@ -29,11 +30,60 @@
 
                 <div id="altShippingAddressContainer" class="{{ collapsed }} alt-shipping-address-container">
 
+                    {% set csvAddresses = config('AlengoShippingAddress.config.altShippingAddressCsvAddresses')|default('') %}
+                    {% if csvAddresses %}
+                        {% set rows = csvAddresses|split('\n') %}
+                        {% set addressArray = rows|map(row => row|split(';')) %}
+                    {% endif %}
+
+                    {% if addressArray %}
+                        <p class="m-0 mt-5 mb-3 fs-4 fw-bold">{{ "alengo.selectPredefinedShippingAddress"|trans|sw_sanitize }}</p>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Firma</th>
+                                <th>Street</th>
+                                <th>Zipcode</th>
+                                <th>City</th>
+                                <th style="width: 90px;"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for address in addressArray %}
+                                {% if address|length > 1 %}
+                                    {% set addressHash = (address[0] ~ address[1] ~ address[2] ~ address[3])|md5 %}
+                                    <tr>
+                                        <td>{{ address[0]|default('') }}</td>
+                                        <td>{{ address[1]|default('') }}</td>
+                                        <td>{{ address[2]|default('') }}</td>
+                                        <td>{{ address[3]|default('') }}</td>
+                                        <td>
+                                            <label>
+                                                <input type="button" value="{{ "alengo.select"|trans|sw_sanitize }}"
+                                                       class="btn btn-primary"
+                                                       data-save-alt-shipping-address="true"
+                                                       data-action="{{ path('frontend.alengo.save_shipping_address') }}"
+                                                       onclick="document.getElementById('altShippingAddressCompany').value = '{{ address[0] }}';
+                                                                document.getElementById('altShippingAddressStreet').value = '{{ address[1] }}';
+                                                                document.getElementById('altShippingAddressZipcode').value = '{{ address[2] }}';
+                                                                document.getElementById('altShippingAddressCity').value = '{{ address[3] }}';">
+                                            </label>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+
+
+                    <p class="m-0 mt-5 mb-3 fs-4 fw-bold">{{ "alengo.customiseDeliveryAddress"|trans|sw_sanitize }}</p>
+
                     {% if config('AlengoShippingAddress.config.altShippingAddressChangeName')|default(false) %}
                         <div class="row">
                             <div class="form-group col-md-6">
                                 <label class="form-label"
-                                       for="altShippingAddressAddressFirstName">{{ "account.personalFirstNameLabel"|trans|sw_sanitize }}</label>
+                                       for="altShippingAddressFirstName">{{ "account.personalFirstNameLabel"|trans|sw_sanitize }}</label>
                                 <input type="text" class="form-control" id="altShippingAddressAddressFirstName"
                                        placeholder="{{ "account.personalFirstNamePlaceholder"|trans|striptags }}"
                                        name="altShippingAddress[firstName]" value="{{ app.session.get('altShippingAddress').altShippingAddress.firstName|default(context.extensions.employee.firstName|default('')) }}"
@@ -56,8 +106,20 @@
                     <div class="row">
                         <div class="form-group">
                             <label class="form-label"
-                                   for="altShippingAddressAddressStreet">{{ "address.streetLabel"|trans|sw_sanitize }}</label>
-                            <input type="text" class="form-control" id="altShippingAddressAddressStreet"
+                                   for="altShippingAddressCompany">{{ "address.companyNameLabel"|trans|sw_sanitize }}</label>
+                            <input type="text" class="form-control" id="altShippingAddressCompany"
+                                   placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
+                                   name="altShippingAddress[company]" value="{{ app.session.get('altShippingAddress').altShippingAddress.company|default('') }}"
+                                   data-save-alt-shipping-address="true"
+                                   data-action="{{ path('frontend.alengo.save_shipping_address') }}">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="form-label"
+                                   for="altShippingAddressStreet">{{ "address.streetLabel"|trans|sw_sanitize }}</label>
+                            <input type="text" class="form-control" id="altShippingAddressStreet"
                                    placeholder="{{ "address.streetPlaceholder"|trans|striptags }}"
                                    name="altShippingAddress[street]" value="{{ app.session.get('altShippingAddress').altShippingAddress.street|default('') }}"
                                    data-save-alt-shipping-address="true"
@@ -68,8 +130,8 @@
                     <div class="row">
                         <div class="form-group col-md-4">
                             <label class="form-label"
-                                   for="altShippingAddressAddressZipcode">{{ "address.zipcodeLabel"|trans|sw_sanitize }}</label>
-                            <input type="text" class="form-control" id="altShippingAddressAddressZipcode"
+                                   for="altShippingAddressZipcode">{{ "address.zipcodeLabel"|trans|sw_sanitize }}</label>
+                            <input type="text" class="form-control" id="altShippingAddressZipcode"
                                    placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
                                    name="altShippingAddress[zipcode]" value="{{ app.session.get('altShippingAddress').altShippingAddress.zipcode|default('') }}"
                                    data-save-alt-shipping-address="true"
@@ -78,8 +140,8 @@
 
                         <div class="form-group col-md-8">
                             <label class="form-label"
-                                   for="altShippingAddressAddressCity">{{ "address.cityLabel"|trans|sw_sanitize }}</label>
-                            <input type="text" class="form-control" id="altShippingAddressAddressCity"
+                                   for="altShippingAddressCity">{{ "address.cityLabel"|trans|sw_sanitize }}</label>
+                            <input type="text" class="form-control" id="altShippingAddressCity"
                                    placeholder="{{ "address.cityPlaceholder"|trans|striptags }}" name="altShippingAddress[city]"
                                    value="{{ app.session.get('altShippingAddress').altShippingAddress.city|default('') }}"
                                    data-save-alt-shipping-address="true"
@@ -99,4 +161,16 @@
         {% endif %}
     {% endblock %}
 
+{% endblock %}
+
+{% block page_checkout_confirm_address_shipping_actions %}
+    {% if config('AlengoShippingAddress.config.altShippingAddressDisableAddressChangeButtons')|default(false) === false %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
+{% block page_checkout_confirm_address_billing_actions %}
+    {% if config('AlengoShippingAddress.config.altShippingAddressDisableAddressChangeButtons')|default(false) === false %}
+        {{ parent() }}
+    {% endif %}
 {% endblock %}

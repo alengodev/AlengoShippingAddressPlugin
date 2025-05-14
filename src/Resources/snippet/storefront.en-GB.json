@@ -1,5 +1,8 @@
 {
     "alengo": {
-        "alternativeShippingAddress": "Alternative shipping address"
+        "alternativeShippingAddress": "Alternative shipping address",
+        "selectPredefinedShippingAddress": "Select predefined shipping address",
+        "customiseDeliveryAddress": "Customise delivery address",
+        "select": "select"
     }
 }

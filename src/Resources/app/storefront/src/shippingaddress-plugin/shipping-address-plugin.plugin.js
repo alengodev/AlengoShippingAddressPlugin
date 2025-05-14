@@ -30,8 +30,12 @@ export default class ShippingAddressPlugin extends Plugin {
     init() {
         this.$emitter.publish('beforeInitShippingAddressPlugin');
 
+        saveShippingAddressEventListener(this.el, 'click', function () {
+            if (this.getAttribute('type') === 'button') {
+                processShippingAddressForm.call(this);
+            }
+        });
         saveShippingAddressEventListener(this.el, 'change', processShippingAddressForm);
-        //saveShippingAddressEventListener(this.el, 'click', processShippingAddressForm);
         saveShippingAddressEventListener(this.el, 'keydown', (event) => {
             let element = this.el;
 

@@ -1,5 +1,8 @@
 {
     "alengo": {
-        "alternativeShippingAddress": "Alternative Lieferadresse"
+        "alternativeShippingAddress": "Alternative Lieferadresse",
+        "selectPredefinedShippingAddress": "Vordefinierte Lieferadresse auswählen",
+        "customiseDeliveryAddress": "Lieferadresse anpassen",
+        "select": "wählen"
     }
 }
