@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class SaveShippingAddressController extends StorefrontController
 {
     #[Route(
-        path: '/save-shipping-address',
+        path: '/alengo-save-shipping-address',
         name: 'frontend.alengo.save_shipping_address',
         defaults: ['XmlHttpRequest' => true],
         methods: ['GET', 'POST'],
