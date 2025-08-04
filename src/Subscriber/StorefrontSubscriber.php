@@ -92,6 +92,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 $newShippingAddress = [
                     'id' => Uuid::randomHex(),
                     'orderId' => $order->getId(),
+                    'company' => $altShippingAddress['altShippingAddress']['company'] != '' ? $altShippingAddress['altShippingAddress']['company'] : $shippingAddress->getCompany(),
                     'firstName' => $altShippingAddress['altShippingAddress']['firstName'] != '' ? $altShippingAddress['altShippingAddress']['firstName'] : $shippingAddress->getFirstName(),
                     'lastName' => $altShippingAddress['altShippingAddress']['lastName'] != '' ? $altShippingAddress['altShippingAddress']['lastName'] : $shippingAddress->getLastName(),
                     'street' => $altShippingAddress['altShippingAddress']['street'] != '' ? $altShippingAddress['altShippingAddress']['street'] : $shippingAddress->getStreet(),
