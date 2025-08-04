@@ -2,7 +2,7 @@
     "name": "alengo-shipping-address/alengo-shipping-address",
     "description": "Change address in checkout",
     "type": "shopware-platform-plugin",
-    "version": "0.3.6",
+    "version": "0.3.9",
     "license": "MIT",
     "authors": [
         {
