@@ -4,19 +4,19 @@ namespace AlengoShippingAddress\Subscriber;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Core\Content\Product\ProductEvents;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class StorefrontSubscriber implements EventSubscriberInterface
 {
     private LoggerInterface $logger;
+
     private EntityRepository $orderAddressRepository;
+
     private RequestStack $requestStack;
+
     private EntityRepository $orderRepository;
 
     public function __construct(
@@ -24,8 +24,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
         EntityRepository $orderAddressRepository,
         EntityRepository $orderRepository,
         RequestStack $requestStack,
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->orderAddressRepository = $orderAddressRepository;
         $this->orderRepository = $orderRepository;
@@ -58,7 +57,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
         // if checkbox is checked override shipping address or if b2b plugin is active
         if ((isset($altShippingAddress['altShippingAddress']) && ($altShippingAddress['altShippingAddress']['active'] ?? false)) || ($order->getCustomFields()['vio_b2b_employee_id'] ?? false)) {
-
             $orderCustomerEmail = $order->getOrderCustomer()->getEmail();
             $orderCustomerFirstName = $order->getOrderCustomer()->getFirstName();
             $orderCustomerLastName = $order->getOrderCustomer()->getLastName();
@@ -73,8 +71,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
                     'id' => Uuid::randomHex(),
                     'orderId' => $order->getId(),
                     'company' => $shippingAddress->getCompany(),
-                    'firstName' => $order->getCustomFields()['vio_b2b_employee_firstName'] != '' ? $order->getCustomFields()['vio_b2b_employee_firstName'] : $shippingAddress->getFirstName(),
-                    'lastName' => $order->getCustomFields()['vio_b2b_employee_lastName'] != '' ? $order->getCustomFields()['vio_b2b_employee_lastName'] : $shippingAddress->getLastName(),
+                    'firstName' => $order->getCustomFields()['vio_b2b_employee_firstName'] !== '' ? $order->getCustomFields()['vio_b2b_employee_firstName'] : $shippingAddress->getFirstName(),
+                    'lastName' => $order->getCustomFields()['vio_b2b_employee_lastName'] !== '' ? $order->getCustomFields()['vio_b2b_employee_lastName'] : $shippingAddress->getLastName(),
                     'street' => $shippingAddress->getStreet(),
                     'zipcode' => $shippingAddress->getZipcode(),
                     'city' => $shippingAddress->getCity(),
@@ -92,12 +90,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 $newShippingAddress = [
                     'id' => Uuid::randomHex(),
                     'orderId' => $order->getId(),
-                    'company' => $altShippingAddress['altShippingAddress']['company'] != '' ? $altShippingAddress['altShippingAddress']['company'] : $shippingAddress->getCompany(),
-                    'firstName' => $altShippingAddress['altShippingAddress']['firstName'] != '' ? $altShippingAddress['altShippingAddress']['firstName'] : $shippingAddress->getFirstName(),
-                    'lastName' => $altShippingAddress['altShippingAddress']['lastName'] != '' ? $altShippingAddress['altShippingAddress']['lastName'] : $shippingAddress->getLastName(),
-                    'street' => $altShippingAddress['altShippingAddress']['street'] != '' ? $altShippingAddress['altShippingAddress']['street'] : $shippingAddress->getStreet(),
-                    'zipcode' => $altShippingAddress['altShippingAddress']['zipcode'] != '' ? $altShippingAddress['altShippingAddress']['zipcode'] : $shippingAddress->getZipcode(),
-                    'city' => $altShippingAddress['altShippingAddress']['city'] != '' ? $altShippingAddress['altShippingAddress']['city'] : $shippingAddress->getCity(),
+                    'company' => $altShippingAddress['altShippingAddress']['company'] !== '' ? $altShippingAddress['altShippingAddress']['company'] : $shippingAddress->getCompany(),
+                    'firstName' => $altShippingAddress['altShippingAddress']['firstName'] !== '' ? $altShippingAddress['altShippingAddress']['firstName'] : $shippingAddress->getFirstName(),
+                    'lastName' => $altShippingAddress['altShippingAddress']['lastName'] !== '' ? $altShippingAddress['altShippingAddress']['lastName'] : $shippingAddress->getLastName(),
+                    'street' => $altShippingAddress['altShippingAddress']['street'] !== '' ? $altShippingAddress['altShippingAddress']['street'] : $shippingAddress->getStreet(),
+                    'zipcode' => $altShippingAddress['altShippingAddress']['zipcode'] !== '' ? $altShippingAddress['altShippingAddress']['zipcode'] : $shippingAddress->getZipcode(),
+                    'city' => $altShippingAddress['altShippingAddress']['city'] !== '' ? $altShippingAddress['altShippingAddress']['city'] : $shippingAddress->getCity(),
                     'countryId' => $order->getAddresses()->first()->getCountryId(),
                 ];
             }
