@@ -2,60 +2,122 @@ import Plugin from 'src/plugin-system/plugin.class';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
 import HttpClient from 'src/service/http-client.service';
 
-function saveShippingAddressEventListener (element, eventType, handler) {
-    if (element.addEventListener) {
-        element.addEventListener(eventType, handler, false);
-    } else if (element.attachEvent) {
-        element.attachEvent('on' + eventType, handler);
-    }
-}
-
-function processShippingAddressForm() {
-    this.client = new HttpClient();
-
-    const form = this.closest('form'),
-        requestUrl = form.getAttribute('data-action'),
-        formData = FormSerializeUtil.serialize(form);
-
-    this.$emitter.publish('beforeSaveShippingAddressSendPostRequest', formData);
-
-    this.client.post(requestUrl, formData, callback => {
-        this.$emitter.publish('afterSaveShippingAddressSendPostRequest');
-
-        // Setze alle .address-checkmark-Elemente auf display: none
-        document.querySelectorAll('.address-checkmark').forEach(checkmark => {
-            checkmark.style.display = 'none';
-        });
-
-        // Zeige das Häkchen für den aktuellen Button
-        const checkmark = this.nextElementSibling;
-        if (checkmark) {
-            checkmark.style.display = 'inline-block';
-        }
-    }, error => {
-        this.$emitter.publish('afterSaveShippingAddressSendPostRequest');
-    });
-}
-
 export default class ShippingAddressPlugin extends Plugin {
+    static options = {
+        selectors: {
+            checkmark: '.address-checkmark',
+        },
+        blockEnterSelector: '.block-enter-key',
+        attributeAction: 'data-action',
+        debounceMs: 0, // ggf. 250
+    };
+
     init() {
+        this.client = new HttpClient();
+        this.isSubmitting = false;
+        this.bound = [];
+
         this.$emitter.publish('beforeInitShippingAddressPlugin');
 
-        saveShippingAddressEventListener(this.el, 'click', function () {
-            if (this.getAttribute('type') === 'button') {
-                processShippingAddressForm.call(this);
+        // click
+        this._on(this.el, 'click', (ev) => {
+            const el = ev.currentTarget;
+            if (el.getAttribute('type') === 'button') {
+                this._process(el);
             }
-        });
-        saveShippingAddressEventListener(this.el, 'change', processShippingAddressForm);
-        saveShippingAddressEventListener(this.el, 'keydown', (event) => {
-            let element = this.el;
+        }, { passive: true });
 
-            if (((element.getAttribute('type') === 'text') || (element.getAttribute('type') === 'number')) && element.classList.contains('block-enter-key')) {
-                if (event.which === 13 || event.keyCode === 13) {
-                    event.preventDefault();
-                    return false;
-                }
+        // change
+        const onChange = (ev) => this._process(ev.currentTarget);
+        this._on(this.el, 'change', this.options.debounceMs ? this._debounce(onChange, this.options.debounceMs) : onChange);
+
+        // keydown (Enter blocken nur bei Inputs mit block-enter-key)
+        this._on(this.el, 'keydown', (ev) => {
+            const target = ev.target;
+            const isTextish = ['text', 'number', 'email', 'tel', 'search'].includes(target?.type);
+            if (isTextish && target.classList?.contains(this.options.blockEnterSelector.replace('.', '')) && ev.key === 'Enter') {
+                ev.preventDefault();
             }
         });
+    }
+
+    destroy() {
+        // alle Listener entfernen
+        this.bound.forEach(({ el, type, handler, options }) => el.removeEventListener(type, handler, options));
+        this.bound = [];
+        super.destroy();
+    }
+
+    _on(el, type, handler, options) {
+        el.addEventListener(type, handler, options);
+        this.bound.push({ el, type, handler, options });
+    }
+
+    _debounce(fn, wait) {
+        let t;
+        return (...args) => {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, args), wait);
+        };
+    }
+
+    _process(triggerEl) {
+        // Mehrfach-Submit verhindern
+        if (this.isSubmitting) return;
+
+        const form = triggerEl.closest('form');
+        if (!form) return;
+
+        const requestUrl = form.getAttribute(this.options.attributeAction);
+        if (!requestUrl) {
+            console.warn(`[ShippingAddressPlugin] Missing ${this.options.attributeAction} on form.`);
+            return;
+        }
+
+        const formData = FormSerializeUtil.serialize(form);
+        this.$emitter.publish('beforeSaveShippingAddressSendPostRequest', formData);
+
+        this.isSubmitting = true;
+        // optional UI-Block
+        triggerEl.setAttribute('disabled', 'disabled');
+        form.classList.add('is-loading');
+
+        this.client.post(
+            requestUrl,
+            formData,
+            (responseText) => {
+                // Erfolgs-UI updaten
+                this._toggleCheckmarks(form, triggerEl);
+
+                // Optional: Response prüfen / Toast anzeigen
+                // try { const json = JSON.parse(responseText); ... } catch {}
+
+                this._finish(triggerEl, form, true);
+            },
+            (error) => {
+                console.error('[ShippingAddressPlugin] POST failed', error);
+                // Optional: Fehlerhinweis im UI
+                form.setAttribute('data-error', '1');
+                this._finish(triggerEl, form, false);
+            }
+        );
+    }
+
+    _toggleCheckmarks(form, triggerEl) {
+        // nur innerhalb dieses Formulars
+        form.querySelectorAll(this.options.selectors.checkmark).forEach(el => { el.style.display = 'none'; });
+        const checkmark = triggerEl.nextElementSibling;
+        if (checkmark && checkmark.matches(this.options.selectors.checkmark)) {
+            checkmark.style.display = 'inline-block';
+            // A11y optional:
+            checkmark.setAttribute('aria-live', 'polite');
+        }
+    }
+
+    _finish(triggerEl, form, ok) {
+        this.$emitter.publish('afterSaveShippingAddressSendPostRequest', { ok });
+        this.isSubmitting = false;
+        triggerEl.removeAttribute('disabled');
+        form.classList.remove('is-loading');
     }
 }
